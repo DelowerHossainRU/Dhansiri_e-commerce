@@ -1,0 +1,16 @@
+{
+  "short_name": "DhansiriAgro",
+  "name": "Dhansiri Agro Industries - Agricultural Marketplace",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#ffffff",
+  "theme_color": "#166534",
+  "display": "standalone",
+  "orientation": "portrait"
+}

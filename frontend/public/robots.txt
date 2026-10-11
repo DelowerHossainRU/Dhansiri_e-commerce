@@ -1,0 +1,23 @@
+# Robots.txt for Dhansiri Agro Industries
+User-agent: *
+Allow: /
+Allow: /shop
+Allow: /products/*
+Allow: /about
+Allow: /quality
+Allow: /sourcing
+Allow: /farmers
+Allow: /seasonal
+Allow: /fresh-harvest
+Allow: /wholesale
+Allow: /blog
+Allow: /faq
+
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /checkout
+Disallow: /account
+Disallow: /account/*
+Disallow: /api/
+
+Sitemap: https://dhansiriagro.com/sitemap.xml

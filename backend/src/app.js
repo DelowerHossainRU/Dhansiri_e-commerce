@@ -5,6 +5,9 @@ const morgan = require('morgan');
 const compression = require('compression');
 const cookieParser = require('cookie-parser');
 const path = require('path');
+const fs = require('fs');
+const rateLimit = require('express-rate-limit');
+const mongoose = require('mongoose');
 
 const errorHandler = require('./middleware/error.middleware');
 
@@ -24,30 +27,98 @@ const qualityRoutes = require('./routes/quality.routes');
 
 const app = express();
 
+// Ensure uploads directory exists on startup
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
 // Security and utility middleware
 app.use(helmet({
   crossOriginResourcePolicy: false,
 }));
+
+// CORS Configuration supporting multiple environments
+const defaultOrigins = ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:3000'];
+const configuredOrigins = process.env.CLIENT_URL
+  ? process.env.CLIENT_URL.split(',').map(url => url.trim())
+  : [];
+const allowedOrigins = [...new Set([...defaultOrigins, ...configuredOrigins])];
+
 app.use(cors({
-  origin: [process.env.CLIENT_URL || 'http://localhost:5173', 'http://127.0.0.1:5173'],
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes('*') || process.env.NODE_ENV !== 'production') {
+      return callback(null, true);
+    }
+    return callback(new Error(`CORS origin not allowed: ${origin}`));
+  },
   credentials: true
 }));
-app.use(morgan('dev'));
+
+// HTTP Logging
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
+
+// Performance Compression
 app.use(compression());
+
+// Body Parsers
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
-// Static file serving for uploads
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+// Rate Limiting Protection
+const generalApiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 1000,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: 'Too many requests from this IP address. Please try again after 15 minutes.'
+  }
+});
 
-// Root health check
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 50,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: 'Too many authentication attempts. Please try again after 15 minutes.'
+  }
+});
+
+app.use('/api', generalApiLimiter);
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/register', authLimiter);
+
+// Static file serving for uploads with cache control
+app.use('/uploads', express.static(uploadsDir, {
+  maxAge: '7d',
+  immutable: false
+}));
+
+// Production Health Check & Telemetry
 app.get('/api/health', (req, res) => {
-  res.status(200).json({
-    status: 'Healthy',
+  const isDbConnected = mongoose.connection.readyState === 1;
+  const uptimeSeconds = Math.floor(process.uptime());
+  const memory = process.memoryUsage();
+
+  res.status(isDbConnected ? 200 : 503).json({
+    success: isDbConnected,
+    status: isDbConnected ? 'Healthy' : 'Degraded',
     platform: 'Dhansiri Agro Industries Enterprise Platform',
+    version: '1.0.0',
+    environment: process.env.NODE_ENV || 'development',
+    database: isDbConnected ? 'connected' : 'disconnected',
+    uptime: `${Math.floor(uptimeSeconds / 3600)}h ${Math.floor((uptimeSeconds % 3600) / 60)}m ${uptimeSeconds % 60}s`,
+    memory: {
+      rssMB: (memory.rss / (1024 * 1024)).toFixed(2),
+      heapUsedMB: (memory.heapUsed / (1024 * 1024)).toFixed(2)
+    },
     timestamp: new Date().toISOString(),
-    currency: 'BDT'
+    currency: 'BDT (৳)'
   });
 });
 

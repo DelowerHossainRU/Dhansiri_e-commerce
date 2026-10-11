@@ -138,54 +138,52 @@ npm run build
 # Built files located in frontend/dist/
 ```
 
-### 2. Configure Nginx Reverse Proxy
-```nginx
-server {
-    listen 80;
-    server_name dhansiriagro.com www.dhansiriagro.com;
+### 2. Docker Compose Deployment (Single Command)
+```bash
+# Build and launch complete production stack (MongoDB, Backend, Frontend/Nginx)
+docker compose up -d --build
 
-    # Frontend Static SPA
-    location / {
-        root /home/delower-hossain/Documents/My\ Personal\ Project/dhansiri-agro/frontend/dist;
-        index index.html;
-        try_files $uri $uri/ /index.html;
-    }
+# Run database seeder
+docker compose exec backend npm run seed
 
-    # Backend API Reverse Proxy
-    location /api/ {
-        proxy_pass http://127.0.0.1:5000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    }
-
-    # Uploaded media documents
-    location /uploads/ {
-        alias /home/delower-hossain/Documents/My\ Personal\ Project/dhansiri-agro/backend/src/uploads/;
-        expires 30d;
-    }
-}
+# Verify API health
+curl http://localhost/api/health
 ```
 
-### 3. Launch Backend with PM2
+### 3. Configure Nginx Reverse Proxy (Bare-Metal VPS)
+See the full [DEPLOYMENT.md](./DEPLOYMENT.md) for step-by-step instructions with SSL, firewall, and database backups.
+
+### 4. Launch Backend with PM2
 ```bash
 npm install -g pm2
-pm2 start ecosystem.config.js
+pm2 start ecosystem.config.js --env production
 pm2 save
 pm2 startup
 ```
 
-### 4. Database Backup & Disaster Recovery
+### 5. Database Backup & Disaster Recovery
 ```bash
 # Automated Daily MongoDB Backup
-mongodump --db dhansiri_agro --out /var/backups/mongodb/$(date +%F)
+mongodump --db dhansiri_agro --archive=/var/backups/mongodb/dhansiri-$(date +%F).gz --gzip
 
 # Restoration
-mongorestore --db dhansiri_agro /var/backups/mongodb/2026-10-10/dhansiri_agro
+mongorestore --db dhansiri_agro --archive=/var/backups/mongodb/dhansiri-2026-10-10.gz --gzip
 ```
 
+---
+
+## 🛠️ Root Monorepo Scripts
+
+From the root project folder:
+- `npm run install:all` - Install all dependencies for both frontend and backend
+- `npm run build` - Build the production frontend distribution bundle
+- `npm run start` - Launch the production backend server
+- `npm test` - Run the automated backend integration test suite
+- `npm run seed` - Seed sample authentic cultivars, farmers, and orders
+- `npm run dev:backend` - Run backend dev watcher
+- `npm run dev:frontend` - Run Vite dev server
+
+---
+
 # Dhansiri_e-commerce
+
