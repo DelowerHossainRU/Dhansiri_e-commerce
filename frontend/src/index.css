@@ -1,0 +1,121 @@
+@import "tailwindcss";
+
+@theme {
+  --color-emerald-50: var(--color-emerald-50, #f0fdf4);
+  --color-emerald-100: var(--color-emerald-100, #dcfce7);
+  --color-emerald-200: var(--color-emerald-200, #bbf7d0);
+  --color-emerald-600: var(--color-emerald-600, #16a34a);
+  --color-emerald-700: var(--color-emerald-700, #15803d);
+  --color-emerald-800: var(--color-emerald-800, #166534);
+  --color-emerald-900: var(--color-emerald-900, #14532d);
+  --color-emerald-950: var(--color-emerald-950, #052e16);
+  --font-serif-display: var(--font-heading);
+}
+
+@layer base {
+  :root {
+    /* Fallback initial values before ThemeProvider loads - Rice Plant Green & Paddy Gold */
+    --brand-primary: #166534;
+    --brand-primary-hover: #14532D;
+    --brand-primary-light: #F0FDF4;
+    --brand-accent: #C59B27;
+    --brand-accent-hover: #A17C1C;
+    --brand-accent-light: #FEF9C3;
+    --brand-bg: #FFFFFF;
+    --brand-surface: #FFFFFF;
+    --brand-subtle: #F8FAF8;
+    --brand-border: #E5E7EB;
+    --brand-border-light: #F3F4F6;
+    --brand-text: #1E293B;
+    --brand-text-muted: #64748B;
+    --brand-footer-bg: #FAFCFA;
+    --brand-footer-text: #1E293B;
+    --brand-footer-border: #E5E7EB;
+
+    --color-emerald-950: var(--brand-primary-hover);
+    --color-emerald-900: var(--brand-primary-hover);
+    --color-emerald-800: var(--brand-primary);
+    --color-emerald-700: var(--brand-primary);
+    --color-emerald-600: var(--brand-primary);
+    --color-emerald-50: var(--brand-primary-light);
+    --color-emerald-100: var(--brand-primary-light);
+
+    --font-heading: 'Playfair Display', Georgia, serif;
+    --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+
+    /* Legacy compatibility aliases */
+    --brand-cream: var(--brand-subtle);
+    --brand-cream-light: var(--brand-bg);
+    --brand-dark: var(--brand-text);
+    --brand-gold: var(--brand-accent);
+    --brand-gold-dark: var(--brand-accent-hover);
+    --brand-forest: var(--brand-primary);
+  }
+
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    overflow-x: clip;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  body {
+    background-color: var(--brand-bg);
+    color: var(--brand-text);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
+    position: relative;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  #root {
+    width: 100%;
+    max-width: 100%;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4, .font-serif-display {
+    font-family: var(--font-heading);
+    letter-spacing: -0.015em;
+  }
+}
+
+/* Theme Utilities */
+.bg-brand-primary { background-color: var(--brand-primary) !important; }
+.hover\:bg-brand-primary:hover { background-color: var(--brand-primary-hover) !important; }
+.text-brand-primary { color: var(--brand-primary) !important; }
+.border-brand-primary { border-color: var(--brand-primary) !important; }
+.bg-brand-accent { background-color: var(--brand-accent) !important; }
+.text-brand-accent { color: var(--brand-accent) !important; }
+.border-brand-accent { border-color: var(--brand-accent) !important; }
+
+/* Custom refined scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--brand-subtle);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--brand-border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-accent);
+}
+
+/* Remove default number input spinner */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
