@@ -7,19 +7,22 @@ const ThemeContext = createContext(null);
 
 export const ThemeProvider = ({ children }) => {
   const [settings, setSettings] = useState(null);
+  const configuredTheme = import.meta.env.VITE_DEFAULT_THEME || 'golden-harvest';
+  const configuredFont = import.meta.env.VITE_DEFAULT_FONT || 'playfair';
+
   const [activeThemeId, setActiveThemeId] = useState(() => {
     try {
-      return localStorage.getItem('dhansiri_theme') || 'golden-harvest';
+      return localStorage.getItem('dhansiri_theme') || configuredTheme;
     } catch {
-      return 'golden-harvest';
+      return configuredTheme;
     }
   });
 
   const [activeFontId, setActiveFontId] = useState(() => {
     try {
-      return localStorage.getItem('dhansiri_font') || 'playfair';
+      return localStorage.getItem('dhansiri_font') || configuredFont;
     } catch {
-      return 'playfair';
+      return configuredFont;
     }
   });
 
@@ -94,9 +97,9 @@ export const ThemeProvider = ({ children }) => {
         setSettings(settingsData);
         // Only override if user doesn't have an explicit local preference
         const savedTheme = localStorage.getItem('dhansiri_theme');
-        const themeId = savedTheme || settingsData.activeTheme || 'golden-harvest';
+        const themeId = savedTheme || settingsData.activeTheme || configuredTheme;
         const savedFont = localStorage.getItem('dhansiri_font');
-        const fontId = savedFont || settingsData.activeFont || 'playfair';
+        const fontId = savedFont || settingsData.activeFont || configuredFont;
 
         setActiveThemeId(themeId);
         setActiveFontId(fontId);
